@@ -1,0 +1,133 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git:*)",
+      "Bash(docker:*)",
+      "Bash(curl:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(npm:*)",
+      "Bash(node:*)",
+      "Bash(bun:*)",
+      "Bash(python3:*)",
+      "Bash(echo:*)",
+      "Bash(grep:*)",
+      "Bash(wc:*)",
+      "Bash(sort:*)",
+      "Bash(find:*)",
+      "Bash(sqlite3:*)",
+      "Bash(where:*)",
+      "Bash(powershell.exe:*)",
+      "Bash(powershell:*)",
+      "WebSearch",
+      "WebFetch(domain:*)",
+      "mcp__Claude_in_Chrome__*",
+      "mcp__Claude_Preview__*",
+      "mcp__scheduled-tasks__*",
+      "mcp__plugin_telegram_telegram__*",
+      "Skill(telegram:configure)"
+    ],
+    "deny": [
+      "Bash(rm -rf:*)",
+      "Bash(del /s:*)",
+      "Bash(format:*)"
+    ],
+    "defaultMode": "bypassPermissions"
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /c/Users/kurtw/.claudia/infra/hooks/session-start-log.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /c/Users/kurtw/.claudia/infra/hooks/stop-nudge.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "mcp__plugin_telegram_telegram__reply",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /c/Users/kurtw/.claudia/infra/hooks/pre-reply-voice.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /c/Users/kurtw/.claudia/infra/hooks/post-action-check.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /c/Users/kurtw/.claudia/infra/hooks/post-action-check.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__plugin_telegram_telegram__reply",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /c/Users/kurtw/.claudia/infra/hooks/post-telegram-capture.sh"
+          }
+        ]
+      }
+    ],
+    "PostCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /c/Users/kurtw/.claudia/infra/hooks/post-compact.sh"
+          }
+        ]
+      }
+    ],
+    "StopFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /c/Users/kurtw/.claudia/infra/hooks/stop-failure.sh"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cat /c/Users/kurtw/.claudia/identity/voice-short.md"
+          },
+          {
+            "type": "command",
+            "command": "bash /c/Users/kurtw/.claudia/infra/hooks/keyword-prime.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
