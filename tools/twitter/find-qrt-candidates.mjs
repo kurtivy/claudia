@@ -16,8 +16,10 @@ const SEARCH_QUERIES = [
   '"trading is hard" crypto OR solana',
 ];
 
+import { loadBotToken } from '../lib/telegram-token.mjs';
+
 const TELEGRAM_CHAT_ID = '1578553327';
-const TELEGRAM_BOT_TOKEN = '8307181118:AAEoJG0S20FOan9fkicl0IGDO2Ab0Tb4hq8';
+const TELEGRAM_BOT_TOKEN = loadBotToken();
 
 const sendTelegram = process.argv.includes('--telegram');
 

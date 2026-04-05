@@ -16,7 +16,8 @@ import { join, dirname } from 'node:path';
 const HOME = process.env.HOME || process.env.USERPROFILE;
 const DATA_DIR = join(HOME, '.claudia', 'tools', 'crypto', 'data');
 
-const BOT_TOKEN = '8307181118:AAEoJG0S20FOan9fkicl0IGDO2Ab0Tb4hq8';
+import { loadBotToken } from '../lib/telegram-token.mjs';
+const BOT_TOKEN = loadBotToken();
 const DEFAULT_CHAT = '1578553327';
 
 const args = process.argv.slice(2);

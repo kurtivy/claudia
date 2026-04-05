@@ -15,7 +15,15 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$botToken = "8307181118:AAEoJG0S20FOan9fkicl0IGDO2Ab0Tb4hq8"
+$claudiaConfig = Join-Path $env:USERPROFILE ".claudia" "claudia.json"
+$botToken = $env:TELEGRAM_BOT_TOKEN
+if (-not $botToken -and (Test-Path $claudiaConfig)) {
+    $cfg = Get-Content $claudiaConfig | ConvertFrom-Json
+    $botToken = $cfg.telegram.botToken
+}
+if (-not $botToken) {
+    throw "Set TELEGRAM_BOT_TOKEN or add telegram.botToken to ~/.claudia/claudia.json"
+}
 $apiUrl = "https://api.telegram.org/bot$botToken/sendMessage"
 
 $body = @{

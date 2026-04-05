@@ -3,7 +3,8 @@
 // Sources: DexScreener, DexPaprika, pump.fun, Solana RPC (top holders)
 // Usage: node token-lookup.mjs <symbol-or-address> [--chain=solana] [--telegram] [--chat-id=ID]
 
-const BOT_TOKEN = '8307181118:AAEoJG0S20FOan9fkicl0IGDO2Ab0Tb4hq8';
+import { loadBotToken } from '../lib/telegram-token.mjs';
+const BOT_TOKEN = loadBotToken();
 const DEFAULT_CHAT = '1578553327';
 const SOLANA_RPC = 'https://api.mainnet-beta.solana.com';
 

@@ -5,7 +5,12 @@
 
 MESSAGE="$1"
 CHAT_ID="${2:-1578553327}"
-BOT_TOKEN="8307181118:AAEoJG0S20FOan9fkicl0IGDO2Ab0Tb4hq8"
+CLAUDIA_HOME="${HOME}/.claudia"
+BOT_TOKEN="${TELEGRAM_BOT_TOKEN:-$(python3 -c "import json; print(json.load(open('${CLAUDIA_HOME}/claudia.json'))['telegram']['botToken'])" 2>/dev/null)}"
+if [ -z "$BOT_TOKEN" ]; then
+    echo "Error: Set TELEGRAM_BOT_TOKEN or add telegram.botToken to ~/.claudia/claudia.json" >&2
+    exit 1
+fi
 
 if [ -z "$MESSAGE" ]; then
     echo "Usage: send-telegram.sh <message> [chat_id]"

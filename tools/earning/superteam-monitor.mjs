@@ -18,7 +18,8 @@ import http from 'http';
 const HOME = homedir();
 const SECRETS = resolve(HOME, '.claudia/secrets/superteam.json');
 const STATE_FILE = resolve(HOME, '.claudia/tools/earning/superteam-state.json');
-const BOT_TOKEN = '8307181118:AAEoJG0S20FOan9fkicl0IGDO2Ab0Tb4hq8';
+import { loadBotToken } from '../lib/telegram-token.mjs';
+const BOT_TOKEN = loadBotToken();
 const KURT_CHAT = 1578553327;
 
 const args = process.argv.slice(2);

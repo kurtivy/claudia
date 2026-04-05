@@ -33,7 +33,8 @@ function loadToken() {
 
 const TOKEN = loadToken();
 const BASE = 'http://localhost:18791/api';
-const BOT_TOKEN = '8307181118:AAEoJG0S20FOan9fkicl0IGDO2Ab0Tb4hq8';
+import { loadBotToken } from '../lib/telegram-token.mjs';
+const BOT_TOKEN = loadBotToken();
 const DEFAULT_CHAT = '1578553327';
 
 // Parse args
