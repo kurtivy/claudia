@@ -11,20 +11,19 @@ Everything needed to send email via Bluehost SMTP from web3advisory.co accounts.
 | Security | SSL/TLS (SMTPS) |
 | Auth | Username + Password |
 
-## Accounts (pick any generic one)
+## Accounts
 
-All accounts share the same password: `Lolipop890-=`
+Credentials stored in `claudia.json` under `mail.accounts[]`. See `claudia.json.example` for the structure.
 
-| Email | Display Name |
-|-------|-------------|
-| contact@web3advisory.co | Web3 Advisory |
-| hello@web3advisory.co | Web3 Advisory |
-| info@web3advisory.co | Web3 Advisory |
-| marketing@web3advisory.co | Web3 Advisory Marketing |
-| outreach@web3advisory.co | Web3 Advisory Outreach |
-| partnerships@web3advisory.co | Web3 Advisory Partnerships |
-| pr@web3advisory.co | Web3 Advisory PR |
-| admin@web3advisory.co | Web3 Advisory |
+Available sender addresses:
+- contact@web3advisory.co
+- hello@web3advisory.co
+- info@web3advisory.co
+- marketing@web3advisory.co
+- outreach@web3advisory.co
+- partnerships@web3advisory.co
+- pr@web3advisory.co
+- admin@web3advisory.co
 
 Avoid `kurt@` and `maria@` — those are personal sender identities.
 
@@ -33,7 +32,7 @@ Avoid `kurt@` and `maria@` — those are personal sender identities.
 ```bash
 curl --ssl-reqd \
   --url "smtps://mail.web3advisory.co:465" \
-  --user "hello@web3advisory.co:Lolipop890-=" \
+  --user "hello@web3advisory.co:$SMTP_PASSWORD" \
   --mail-from "hello@web3advisory.co" \
   --mail-rcpt "recipient@example.com" \
   --upload-file - <<EOF
@@ -57,7 +56,7 @@ const transporter = nodemailer.createTransport({
   secure: true,
   auth: {
     user: 'hello@web3advisory.co',
-    pass: 'Lolipop890-=',
+    pass: process.env.SMTP_PASSWORD,
   },
 });
 
@@ -73,7 +72,7 @@ await transporter.sendMail({
 ## Sending via Python (smtplib)
 
 ```python
-import smtplib
+import os, smtplib
 from email.mime.text import MIMEText
 
 msg = MIMEText("Your email body here.")
@@ -82,7 +81,7 @@ msg["From"] = "Web3 Advisory <hello@web3advisory.co>"
 msg["To"] = "recipient@example.com"
 
 with smtplib.SMTP_SSL("mail.web3advisory.co", 465) as server:
-    server.login("hello@web3advisory.co", "Lolipop890-=")
+    server.login("hello@web3advisory.co", os.environ["SMTP_PASSWORD"])
     server.send_message(msg)
 ```
 
