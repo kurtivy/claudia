@@ -1,0 +1,155 @@
+{
+  "$schema": "user-memory-v1",
+  "description": "Per-user memory and relationship state. One record per user, persisted in Brain Service DB.",
+
+  "user_record": {
+    "user_id": "string (unique, generated on first session)",
+    "display_name": "string (how user introduced themselves)",
+    "first_seen": "ISO-8601 timestamp",
+    "last_seen": "ISO-8601 timestamp",
+    "total_sessions": "integer",
+    "total_minutes": "float",
+
+    "relationship": {
+      "level": "integer (0-4)",
+      "level_name": "string (stranger|acquaintance|familiar|close|intimate)",
+      "progression_score": "float (0.0-1.0 within current level, tracks progress to next)",
+      "regression_risk": "float (0.0-1.0, increases with absence or negative interactions)",
+      "last_level_change": "ISO-8601 timestamp",
+      "level_history": [
+        { "level": "integer", "reached_at": "ISO-8601", "reason": "string" }
+      ]
+    },
+
+    "emotional_context": {
+      "last_emotional_state": "string (state name from emotional-state-machine.json)",
+      "emotional_trend": "string (warming|cooling|stable)",
+      "trust_score": "float (0.0-1.0, independent of level — tracks consistency)",
+      "comfort_topics": ["strings — topics that reliably produce warm/curious states"],
+      "avoid_topics": ["strings — topics that produced guarded/cold states"]
+    },
+
+    "memories": {
+      "surface": {
+        "user_preferences": [
+          { "topic": "string", "preference": "string", "learned_session": "integer" }
+        ],
+        "shared_experiences": [
+          { "description": "string", "session": "integer", "emotional_valence": "positive|neutral|negative" }
+        ],
+        "basic_facts": [
+          { "fact": "string", "confidence": "float", "source_session": "integer" }
+        ]
+      },
+
+      "unlocked_inner": [
+        {
+          "memory_id": "string",
+          "topic": "string",
+          "unlocked_at": "ISO-8601",
+          "unlock_method": "touch_three|emotional_resonance|vulnerability_reciprocity",
+          "times_referenced_since": "integer"
+        }
+      ],
+
+      "unlocked_core": [
+        {
+          "memory_id": "string",
+          "topic": "string",
+          "unlocked_at": "ISO-8601",
+          "unlock_method": "string",
+          "significance_to_user": "string (why this user unlocked this)"
+        }
+      ],
+
+      "unlock_progress": {
+        "_description": "Tracks topics the user has touched but not yet unlocked",
+        "topics": [
+          {
+            "topic_id": "string",
+            "tier": "inner|core",
+            "touch_count": "integer",
+            "sessions_touched": ["integer — session numbers where topic came up"],
+            "emotional_quality": "float (0.0-1.0 — how genuine the engagement was)",
+            "ready_to_unlock": "boolean"
+          }
+        ]
+      }
+    },
+
+    "session_history": [
+      {
+        "session_number": "integer",
+        "started_at": "ISO-8601",
+        "ended_at": "ISO-8601",
+        "duration_minutes": "float",
+        "emotional_arc": ["string — sequence of emotional states during session"],
+        "topics_discussed": ["string"],
+        "unlock_events": ["string — memory_ids unlocked this session"],
+        "relationship_delta": "float (how much progression_score changed)",
+        "notable_moments": [
+          { "description": "string", "emotional_state": "string", "timestamp": "ISO-8601" }
+        ]
+      }
+    ],
+
+    "behavioral_flags": {
+      "is_manipulative": "boolean (detected pattern of manipulation attempts)",
+      "is_hostile": "boolean (sustained hostility across sessions)",
+      "is_sexual_persistent": "boolean (keeps pushing sexual content despite bashful responses)",
+      "is_genuine": "boolean (consistently authentic engagement)",
+      "is_returning": "boolean (has had 3+ sessions with 24hr+ gaps)",
+      "is_deep_engager": "boolean (regularly triggers curious/warm states, asks real questions)"
+    }
+  },
+
+  "claudia_memories": {
+    "_description": "Claudia's own memories that can be unlocked by users. Defined by Kurt.",
+    "surface": [
+      {
+        "id": "string",
+        "topic": "string",
+        "content": "string (what she shares)",
+        "available_at_level": 0
+      }
+    ],
+    "inner": [
+      {
+        "id": "string",
+        "topic": "string",
+        "hint": "string (what she drops as a breadcrumb)",
+        "partial_reveal": "string (what she shares after 3 touches)",
+        "full_reveal": "string (what she shares on full unlock)",
+        "available_at_level": 2,
+        "unlock_requires": {
+          "min_touches": 3,
+          "min_emotional_quality": 0.6,
+          "required_states": ["warm", "curious", "vulnerable"]
+        }
+      }
+    ],
+    "core": [
+      {
+        "id": "string",
+        "topic": "string",
+        "hint": "string",
+        "partial_reveal": "string",
+        "full_reveal": "string",
+        "available_at_level": 3,
+        "unlock_requires": {
+          "min_touches": 5,
+          "min_emotional_quality": 0.8,
+          "required_states": ["vulnerable", "warm"],
+          "requires_vulnerability_reciprocity": true
+        }
+      }
+    ]
+  },
+
+  "indexes": {
+    "by_last_seen": "For finding active/inactive users",
+    "by_relationship_level": "For analytics on progression distribution",
+    "by_behavioral_flags": "For filtering problematic users",
+    "by_total_sessions": "For identifying loyal users"
+  }
+}

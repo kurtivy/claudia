@@ -1,0 +1,56 @@
+{
+  "$schema": "claudia-config-v1",
+  "description": "Copy to config.json and fill in secrets",
+
+  "mode": "development",
+
+  "personaplex": {
+    "model_path": "./models/personaplex",
+    "quantization": "q8",
+    "device": "cuda:0",
+    "voice_sample": "./identity/voice-sample.wav"
+  },
+
+  "musetalk": {
+    "model_path": "./models/musetalk",
+    "avatar_image": "./identity/videomeeting-avatar.png",
+    "fps": 30,
+    "device": "cuda:0"
+  },
+
+  "meeting_bridge": {
+    "provider": "meetingbaas",
+    "self_hosted": true,
+    "api_url": "http://localhost:3000",
+    "bot_name": "Claudia",
+    "bot_avatar": "./identity/videomeeting-avatar.png"
+  },
+
+  "brain_service": {
+    "db_path": "./data/brain.db",
+    "claudia_memories_path": "./engine/memory/claudia-memories.json"
+  },
+
+  "orchestrator": {
+    "max_queue_size": 10,
+    "session_timeout_minutes": 60
+  },
+
+  "cloud": {
+    "provider": "runpod",
+    "runpod_api_key": "",
+    "runpod_endpoint_id": "",
+    "gpu_type": "RTX_3090",
+    "min_workers": 0,
+    "max_workers": 10
+  },
+
+  "hybrid_llm": {
+    "_description": "Optional Claude API for deep reasoning moments",
+    "enabled": false,
+    "api_key": "",
+    "model": "claude-sonnet-4-6",
+    "max_calls_per_session": 3,
+    "trigger_on": ["complex_question", "emotional_depth_request", "factual_query"]
+  }
+}

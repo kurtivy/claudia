@@ -1,5 +1,0 @@
-#!/bin/sh
-# View recent container logs via Docker socket API
-CONTAINER=${OPENCLAW_CONTAINER_NAME:-kurtclaw-kurtclaw-1}
-LINES=${1:-50}
-curl -s --unix-socket /var/run/docker.sock "http://localhost/v1.44/containers/$CONTAINER/logs?stdout=true&stderr=true&tail=$LINES" 2>/dev/null | strings
