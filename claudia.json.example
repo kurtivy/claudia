@@ -1,0 +1,15 @@
+{
+  "gateway": {
+    "token": "your-gateway-token-here"
+  },
+  "mail": {
+    "publicUrl": "https://your-tracking-domain.com"
+  },
+  "telegram": {
+    "botToken": "your-telegram-bot-token"
+  },
+  "stripe": {
+    "secretKey": "sk_live_your-stripe-secret-key",
+    "webhookSecret": "whsec_your-webhook-secret"
+  }
+}

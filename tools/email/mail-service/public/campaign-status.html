@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Campaign Status — Web3Advisory</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #f5f2ed;
+      color: #1a1a1a;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 16px;
+    }
+
+    .container { width: 100%; max-width: 620px; }
+
+    .header { margin-bottom: 32px; }
+    .header h1 { font-size: 22px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; }
+    .header p { color: #999; font-size: 13px; }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e0dcd6;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    .card-title {
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.08em; color: #999; margin-bottom: 16px;
+    }
+
+    .field-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: 8px 0; border-bottom: 1px solid #f0ece6;
+    }
+    .field-row:last-child { border-bottom: none; }
+    .field-label { color: #5a5550; font-size: 13px; }
+    .field-value { color: #1a1a1a; font-size: 14px; text-align: right; }
+
+    .badge {
+      display: inline-block; padding: 3px 10px; border-radius: 4px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    .badge-pending_payment { background: #fef5e7; color: #b5842a; border: 1px solid #e8d5a8; }
+    .badge-paid            { background: #e8f4fd; color: #2a7ab5; border: 1px solid #b8d8ef; }
+    .badge-approved        { background: #e8f4fd; color: #2a7ab5; border: 1px solid #b8d8ef; }
+    .badge-sending         { background: #edf7ee; color: #2e7d32; border: 1px solid #b8debb; }
+    .badge-completed       { background: #edf7ee; color: #2e7d32; border: 1px solid #b8debb; }
+    .badge-rejected        { background: #fdf5f4; color: #b5382a; border: 1px solid #e8c8c4; }
+    .badge-refunded        { background: #fdf5f4; color: #b5382a; border: 1px solid #e8c8c4; }
+    .badge-default         { background: #f5f2ed; color: #5a5550; border: 1px solid #e0dcd6; }
+
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .stat-box {
+      background: #faf8f5; border: 1px solid #e0dcd6; border-radius: 6px;
+      padding: 16px; text-align: center;
+    }
+    .stat-number { font-size: 28px; font-weight: 700; color: #1a1a1a; line-height: 1; margin-bottom: 4px; }
+    .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: #999; }
+
+    .rejection-box {
+      background: #fdf5f4; border: 1px solid #e8c8c4; border-radius: 6px;
+      padding: 16px; color: #b5382a; font-size: 14px;
+    }
+    .rejection-box strong {
+      display: block; margin-bottom: 6px; font-size: 12px;
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+
+    .error-state { text-align: center; color: #999; padding: 60px 0; }
+    .error-state h2 { font-size: 18px; color: #5a5550; margin-bottom: 8px; }
+    .refresh-note { font-size: 12px; color: #999; text-align: center; margin-top: 8px; }
+    #loading { text-align: center; color: #999; padding: 60px 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Campaign Status</h1>
+      <p>Real-time delivery report</p>
+    </div>
+    <div id="loading">Loading...</div>
+    <div id="content" style="display:none"></div>
+  </div>
+
+  <script>
+    const pathParts = window.location.pathname.split('/');
+    const campaignId = pathParts[pathParts.indexOf('campaign') + 1];
+    let refreshTimer = null;
+
+    function badgeClass(status) {
+      const known = ['pending_payment','paid','approved','sending','completed','rejected','refunded'];
+      return known.includes(status) ? `badge-${status}` : 'badge-default';
+    }
+
+    function badgeLabel(status) {
+      return { pending_payment:'Awaiting Payment', paid:'Payment Received', approved:'Approved',
+        sending:'Sending', completed:'Completed', rejected:'Rejected', refunded:'Refunded' }[status] || status;
+    }
+
+    function fmt(n) { return Number(n || 0).toLocaleString(); }
+
+    function renderCampaign(c, stats) {
+      const showStats = ['sending','completed'].includes(c.status) && stats;
+      const showRej = ['rejected','refunded'].includes(c.status) && c.rejection_reason;
+      let h = `<div class="card"><div class="card-title">Campaign Details</div>
+        <div class="field-row"><span class="field-label">Campaign</span><span class="field-value">${esc(c.campaign_name)}</span></div>
+        <div class="field-row"><span class="field-label">Status</span><span class="field-value"><span class="badge ${badgeClass(c.status)}">${badgeLabel(c.status)}</span></span></div>
+        <div class="field-row"><span class="field-label">Recipients</span><span class="field-value">${fmt(c.recipient_count)}</span></div>
+        <div class="field-row"><span class="field-label">Cost</span><span class="field-value">$${esc(c.cost_dollars)}</span></div>
+        ${c.completed_at ? `<div class="field-row"><span class="field-label">Completed</span><span class="field-value">${esc(c.completed_at.split('T')[0])}</span></div>` : ''}
+      </div>`;
+      if (showRej) h += `<div class="card"><div class="card-title">Rejection Notice</div><div class="rejection-box"><strong>Reason</strong>${esc(c.rejection_reason)}</div></div>`;
+      if (showStats) h += `<div class="card"><div class="card-title">Delivery Stats</div><div class="stats-grid">
+        <div class="stat-box"><div class="stat-number">${fmt(stats.sent)}</div><div class="stat-label">Sent</div></div>
+        <div class="stat-box"><div class="stat-number">${fmt(stats.opened)}</div><div class="stat-label">Opened</div></div>
+        <div class="stat-box"><div class="stat-number">${fmt(stats.clicked)}</div><div class="stat-label">Clicked</div></div>
+        <div class="stat-box"><div class="stat-number">${fmt(stats.bounced)}</div><div class="stat-label">Bounced</div></div>
+      </div></div>`;
+      if (c.status === 'sending') h += `<p class="refresh-note">Auto-refreshing every 30 seconds</p>`;
+      return h;
+    }
+
+    function esc(s) { if (!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    async function load() {
+      if (!campaignId) { showError('No campaign ID in URL'); return; }
+      let campaign;
+      try {
+        const res = await fetch(`/api/public/campaign/${campaignId}`);
+        if (res.status === 404) { showError('Campaign not found','Check your link or contact us.'); return; }
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        campaign = await res.json();
+      } catch (e) { showError('Failed to load', e.message); return; }
+
+      let stats = null;
+      if (['sending','completed'].includes(campaign.status)) {
+        try { const r = await fetch(`/api/public/campaign/${campaignId}/stats`); if (r.ok) stats = await r.json(); } catch(_) {}
+      }
+
+      document.getElementById('loading').style.display = 'none';
+      const el = document.getElementById('content');
+      el.style.display = 'block';
+      el.innerHTML = renderCampaign(campaign, stats);
+
+      if (refreshTimer) clearTimeout(refreshTimer);
+      if (campaign.status === 'sending') refreshTimer = setTimeout(load, 30000);
+    }
+
+    function showError(title, detail) {
+      document.getElementById('loading').style.display = 'none';
+      const el = document.getElementById('content');
+      el.style.display = 'block';
+      el.innerHTML = `<div class="error-state"><h2>${esc(title)}</h2>${detail ? `<p>${esc(detail)}</p>` : ''}</div>`;
+    }
+
+    load();
+  </script>
+</body>
+</html>

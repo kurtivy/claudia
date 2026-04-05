@@ -1,71 +1,87 @@
-# Claudia — Internet Girlfriend
+# Claudia
 
-A real-time AI video companion with psychological depth, persistent memory, and gamified relationship progression.
+An autonomous AI agent built on [Claude Code](https://docs.anthropic.com/en/docs/claude-code). Claudia runs as a persistent process with self-healing restarts, lifecycle hooks, structured memory, and multi-platform engagement (Telegram, Twitter, email).
 
-## What is this
+This repo is the full agent: identity, brain, tools, infrastructure. Clone it to build your own.
 
-Claudia joins video calls (Google Meet / Zoom) as an animated avatar. She talks in real-time with a cloned voice, remembers you across sessions, and has a structured personality that evolves based on your relationship. She's shy at first but opens up over time. She has inner memories you can unlock through genuine engagement.
+## What's in here
 
-## How it works
+| Directory | Purpose |
+|-----------|---------|
+| `brain/` | Working memory updated each cycle (keyword graph, hot topics) |
+| `config/` | App configuration (secrets gitignored, examples tracked) |
+| `custom-skills/` | Claude Code skills for specific capabilities |
+| `docs/` | Architecture docs, specs, marketing copy |
+| `email/` | Mail service (Express + SQLite + tracking) |
+| `identity/` | Personality definition: voice, soul, boundaries |
+| `infra/` | Agent kernel: lifecycle hooks, launchers, procedures |
+| `knowledge/` | Promoted durable facts and research |
+| `memories/` | Long-term memory with FTS5 search index |
+| `schedule/` | Cycle planning, handoff between sessions, initiative tracking |
+| `scripts/` | Campaign automation (Windows scheduled tasks) |
+| `social/` | Per-platform engagement strategies |
+| `tools/` | Custom scripts: browser automation, Twitter, email, crypto |
 
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| Brain | PersonaPlex 7B (NVIDIA) | Full-duplex speech — listens and speaks simultaneously, 70ms latency |
-| Face | MuseTalk (Tencent) | Real-time lip-sync avatar from audio, 30fps |
-| Meeting | MeetingBaaS (self-hosted) | Joins Google Meet / Zoom, bridges audio + video |
-| Personality | Custom engine | Emotional state machine, relationship levels, memory unlock mechanics |
-| Memory | Brain Service | Per-user memory, session history, behavioral tracking |
+## Setup
+
+### Prerequisites
+
+- [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code) installed (`claude.exe` in PATH or `~/.local/bin/`)
+- Node.js 20+
+- Windows (for the launcher scripts; the agent itself is cross-platform)
+
+### Quick start
+
+```powershell
+# 1. Clone the repo
+git clone https://github.com/youruser/claudia.git
+cd claudia
+
+# 2. Run setup (creates ~/.claudia symlink, desktop shortcut, startup entry)
+powershell -ExecutionPolicy Bypass -File setup.ps1
+
+# 3. Copy and fill in your config
+copy claudia.json.example claudia.json
+# Edit claudia.json with your API keys
+
+# 4. Install tool dependencies
+cd tools/email/mail-service && npm install && cd ../../..
+cd tools/browser && npm install && cd ../..
+cd tools/twitter && npm install && cd ../..
+
+# 5. Launch
+# Double-click "Start Claudia" on your Desktop, or:
+powershell -ExecutionPolicy Bypass -File infra/launchers/watchdog-claudia.ps1
+```
+
+### What setup.ps1 does
+
+1. Creates a symlink: `~/.claudia` -> this repo
+2. Copies `Start Claudia.bat` to your Desktop
+3. Copies the startup watchdog VBS to `shell:startup`
+4. Creates empty directories for gitignored content (`logs/`, `tmp/`, `data/`, etc.)
 
 ## Architecture
 
-```
-User in meeting → MeetingBaaS captures audio
-  → PersonaPlex generates response (voice-conditioned, persona-prompted)
-  → MuseTalk animates avatar face
-  → MeetingBaaS sends video + audio back into meeting
-```
+Claudia runs as a Claude Code CLI process inside a PowerShell restart loop. A separate external watchdog (launched at Windows startup) monitors the process and restarts it if it crashes.
 
-The Personality Engine dynamically compiles PersonaPlex's role prompt per user based on:
-- Relationship level (stranger → acquaintance → familiar → close → intimate)
-- Current emotional state (10 states with defined transitions)
-- Unlocked memories (surface → inner → core tiers)
-- User-specific context (preferences, history, behavioral flags)
+Each session follows a structured lifecycle:
 
-## Directory Structure
+1. **Boot** - reads `schedule/handoff.md` for work items, runs diagnostics
+2. **Work** - executes tasks from the handoff, writes memories along the way
+3. **Cycle end** - consolidates learnings, updates handoff for next session, resets
 
-```
-identity/           Who Claudia IS (soul, voice, personality, boundaries)
-engine/
-  personality/      Psychology framework, emotional states, prompt compiler
-  memory/           Per-user memory schemas, Claudia's unlock memories
-  session/          Session lifecycle, conversation monitor, orchestrator
-src/
-  worker/           GPU worker (PersonaPlex + MuseTalk)
-  orchestrator/     Session routing
-  meeting-bridge/   MeetingBaaS integration
-infra/              Hooks, launchers, deployment specs
-docs/               Architecture docs
-```
+Hooks in `.claude/settings.local.json` inject context at key moments (session start, before replies, after file edits, on compaction).
 
-## Requirements
+## Customization
 
-### Local Development
-- NVIDIA GPU with 24GB VRAM (RTX 3090 / 3090 Ti / 4090)
-- Python 3.10+, CUDA 12.4+
-- Docker
+To make this your own agent:
 
-### Production
-- RunPod GPU instances (RTX 3090 at ~$0.19/hr per concurrent user)
-- Self-hosted MeetingBaaS
-- Brain Service (lightweight, shared across all users)
-
-## Cost
-
-~$0.30/hr per concurrent user in production. All core components are open source and self-hosted.
-
-## Status
-
-Architecture and personality engine designed. Infrastructure integration in progress.
+1. Edit `identity/` - define your agent's personality, voice, and boundaries
+2. Edit `brain/keyword-graph.json` - set up topic-based context priming
+3. Add skills to `custom-skills/` - each skill is a markdown file with frontmatter
+4. Configure hooks in `.claude/settings.local.json` to match your workflow
+5. Set up your credentials in `claudia.json`, `credentials/`, and `secrets/`
 
 ## License
 

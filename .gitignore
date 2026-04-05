@@ -1,8 +1,9 @@
 # ============================================
-# Claudia — Internet Girlfriend
+# Claudia Agent - .gitignore
 # ============================================
-# AI video companion with persistent memory.
-# Secrets, runtime data, and user data are excluded.
+# This repo is a template for autonomous AI agents.
+# Personal data, secrets, and runtime artifacts are excluded.
+# Structure and code are tracked; content is not.
 
 # --- Secrets & Credentials ---
 claudia.json
@@ -117,17 +118,3 @@ infra/telegram/*.json
 # --- Claude Code ---
 .claude/scheduled_tasks.lock
 .claude/scheduled-tasks/
-
-# --- Product Data ---
-config.json
-data/
-models/
-*.wav
-*.mp3
-*.m4a
-identity/voice-sample.*
-identity/videomeeting-avatar.png
-__pycache__/
-*.pyc
-.venv/
-venv/
