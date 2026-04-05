@@ -1,0 +1,120 @@
+# ============================================
+# Claudia Agent - .gitignore
+# ============================================
+# This repo is a template for autonomous AI agents.
+# Personal data, secrets, and runtime artifacts are excluded.
+# Structure and code are tracked; content is not.
+
+# --- Secrets & Credentials ---
+claudia.json
+config/mm-credentials.json
+credentials/
+secrets/
+infra/secrets.md
+identity/device*.json
+
+# --- Databases ---
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+
+# --- Runtime Signal Files ---
+.needs-boot
+.terminal-pid
+.session-boot
+.cycle-reset-signal
+.voice-debounce
+.last-*
+claudia.pid
+*.pid
+*.lock
+
+# --- Logs ---
+logs/
+
+# --- Temp & Cache ---
+tmp/
+
+# --- Media & Build Output ---
+media/
+tools/remotion/out/
+
+# --- Node ---
+node_modules/
+package-lock.json
+bun.lockb
+
+# --- Personal Data ---
+# Memory entries (personal knowledge - structure files tracked, entries are not)
+memories/entries/
+memories/main.sqlite
+
+# Brain operational state (templates tracked, data is not)
+brain/*.json
+
+# Cycle logs (session-specific)
+schedule/cycles/*.md
+!schedule/cycles/_template.md
+schedule/cycles/events/
+
+# Handoff and initiative content (operational state)
+schedule/handoff.md
+schedule/brain-audit-report.md
+schedule/initiatives/**/*.md
+schedule/initiatives/**/*.json
+!schedule/initiatives/_active.md
+!schedule/initiatives/_research-queue.md
+
+# Personal context
+identity/kurt-context.md
+
+# Snapshots (engagement data about specific people)
+docs/snapshots/
+
+# Historical data
+data/
+
+# Email operational data
+email/mail.db*
+email/active-campaign.json
+email/accounts.json*
+email/optouts.csv
+
+# Engagement and activity logs (personal data)
+*.jsonl
+social/twitter/accounts/
+social/twitter/allies.md
+social/twitter/targets.md
+social/twitter/drafts*.md
+social/twitter/opinion-drafts.md
+social/twitter/snapshot-*
+social/telegram/kurt.md
+social/telegram/masha.md
+social/email/campaigns.md
+social/signal-game-context.md
+
+# Email campaign data (CSVs with contacts, logs, trackers)
+tools/email/campaigns/*.csv
+tools/email/campaigns/*.log
+tools/email/campaigns/*.json
+tools/email/campaigns/*.txt
+
+# Twitter runtime artifacts (screenshots, snapshots, debug images, drafts)
+tools/twitter/screenshots/
+tools/twitter/snapshots/
+tools/twitter/*.md
+
+# --- OS & Editor ---
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Telegram state
+infra/telegram/*.json
+
+# --- Claude Code ---
+.claude/scheduled_tasks.lock
+.claude/scheduled-tasks/

@@ -99,7 +99,7 @@ For the technically inclined: there's no embedding model, no vector search, no A
 
 ## Thought Cycles
 
-The agent thinks in 4-hour cycles. Each cycle has four phases:
+The agent thinks in 3-hour cycles. Each cycle has four phases:
 
 ### Boot
 The agent reads its active initiatives, checks what the previous cycle told it to pick up, scans recent memories, and writes a **cycle file** — a structured document with:
@@ -126,7 +126,7 @@ A scheduled self-prompt forces honest self-assessment:
 Each "no" is a required action. The growth check is how the system prevents the agent from spending an entire cycle on reactive work (answering messages, small fixes) without producing anything.
 
 ### Brain Dump (end of cycle)
-The 4-hour alarm fires. The agent:
+The 3-hour alarm fires. The agent:
 
 1. Writes memory entries — one file per fact, deduplicated against what exists
 2. Completes the cycle file — checks off objectives, explains misses, logs patterns

@@ -1,0 +1,1 @@
+Log to cycle file. Memory: did you hit a wall, make a non-obvious choice, or learn something? Write to `memories/entries/` now. Friction: was this harder than it should be? Log to `tools/workshop/opportunities.md`. Continue.

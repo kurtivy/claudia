@@ -1,0 +1,19 @@
+#!/bin/sh
+# Check container health and status via Docker socket API
+CONTAINER=${OPENCLAW_CONTAINER_NAME:-kurtclaw-kurtclaw-1}
+echo "=== Container Status ==="
+curl -s --unix-socket /var/run/docker.sock "http://localhost/v1.44/containers/$CONTAINER/json" 2>/dev/null | \
+  grep -oE '"Status":"[^"]*"|"StartedAt":"[^"]*"|"Running":(true|false)' | tr ',' '\n'
+
+echo ""
+echo "=== System Resources ==="
+echo "Memory:" && free -h 2>/dev/null | head -2
+echo "Disk:" && df -h /home/node/.openclaw 2>/dev/null | tail -1
+
+echo ""
+echo "=== Processes ==="
+ps aux --sort=-%mem 2>/dev/null | head -8
+
+echo ""
+echo "=== Recent Errors ==="
+grep -i "error\|failed\|crash" /tmp/openclaw/openclaw-$(date +%Y-%m-%d).log 2>/dev/null | tail -5 || echo "No errors found"
